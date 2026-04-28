@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: go-digital-config
+  namespace: go-digital
+data:
+  MAIL_PORT: "587"
+  MAIL_SERVER: "smtp.gmail.com"
+  MAIL_STARTTLS: "true"
+  MAIL_SSL_TLS: "false"
+  FRONTEND_URL: "https://go-digital.com"
+  ACCESS_TOKEN_EXPIRE_MINUTES: "60"

@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Env files — NEVER commit these
+.env
+backend/.env
+*.env.local
+
+# Node
+node_modules/
+dist/
+.DS_Store
+
+# Docker
+*.log
+
+# K8s secrets
+k8s/secrets.yaml

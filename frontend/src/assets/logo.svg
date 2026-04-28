@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" fill="none">
+  <!-- Circuit ring around G -->
+  <circle cx="22" cy="24" r="18" stroke="#00BFFF" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
+  <circle cx="22" cy="24" r="14" stroke="#00BFFF" stroke-width="0.5" opacity="0.3"/>
+  <!-- Node dots -->
+  <circle cx="22" cy="6" r="2" fill="#00BFFF"/>
+  <circle cx="22" cy="42" r="2" fill="#00BFFF" opacity="0.6"/>
+  <circle cx="4" cy="24" r="2" fill="#00BFFF" opacity="0.6"/>
+  <circle cx="40" cy="24" r="2" fill="#00BFFF"/>
+  <!-- G letter -->
+  <text x="12" y="31" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="900" fill="#00BFFF">G</text>
+  <!-- O_Digital text -->
+  <text x="48" y="32" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" fill="white">O_<tspan fill="#00BFFF">Digital</tspan></text>
+</svg>
