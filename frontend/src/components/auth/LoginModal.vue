@@ -26,7 +26,6 @@
         </div>
 
         <p v-if="error" class="text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded-lg px-4 py-3">{{ error }}</p>
-        <p v-if="success" class="text-brand-cyan text-xs bg-brand-cyan/10 border border-brand-cyan/20 rounded-lg px-4 py-3">{{ success }}</p>
 
         <button type="submit" :disabled="loading"
           class="w-full bg-brand-cyan text-brand-dark font-bold py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-60 mt-2">
@@ -44,24 +43,24 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
-defineEmits(['close', 'switch-to-signup'])
+const emit = defineEmits(['close', 'switch-to-signup'])
 
 const auth = useAuthStore()
+const router = useRouter()
 const form = reactive({ email: '', password: '' })
 const loading = ref(false)
 const error = ref('')
-const success = ref('')
 
 async function submit() {
   loading.value = true
   error.value = ''
-  success.value = ''
   try {
     await auth.login(form.email, form.password)
-    success.value = 'Signed in successfully!'
-    setTimeout(() => emit('close'), 800)
+    emit('close')
+    router.push('/dashboard')
   } catch (err) {
     error.value = err.response?.data?.detail || 'Login failed. Check your credentials.'
   } finally {
