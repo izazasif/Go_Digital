@@ -8,6 +8,7 @@
       <OurServices />
       <GoalCommitment />
       <AboutUs />
+      <TrustedPartners />
     </main>
 
     <AppFooter />
@@ -26,6 +27,7 @@ import WhatWeDo from '@/components/sections/WhatWeDo.vue'
 import OurServices from '@/components/sections/OurServices.vue'
 import GoalCommitment from '@/components/sections/GoalCommitment.vue'
 import AboutUs from '@/components/sections/AboutUs.vue'
+import TrustedPartners from '@/components/sections/TrustedPartners.vue'
 import LoginModal from '@/components/auth/LoginModal.vue'
 import SignupModal from '@/components/auth/SignupModal.vue'
 
