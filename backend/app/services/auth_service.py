@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
@@ -7,6 +8,8 @@ from app.models.email_verification import EmailVerification
 from app.core.security import hash_password, verify_password, generate_verification_token, create_access_token, create_refresh_token
 from app.core.config import settings
 from app.core import email as mail
+
+logger = logging.getLogger(__name__)
 
 
 async def register_user(db: Session, full_name: str, email: str, password: str) -> User:
@@ -22,7 +25,11 @@ async def register_user(db: Session, full_name: str, email: str, password: str) 
     db.commit()
     db.refresh(user)
 
-    await mail.send_verification_email(email, full_name, token)
+    try:
+        await mail.send_verification_email(email, full_name, token)
+    except Exception as e:
+        logger.error(f"Failed to send verification email to {email}: {e}")
+
     return user
 
 
