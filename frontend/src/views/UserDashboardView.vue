@@ -99,6 +99,47 @@
         </div>
       </div>
 
+      <!-- Tab: User Log -->
+      <div v-if="activeTab === 'log'">
+        <div v-if="userLogs.length === 0" class="text-center py-16">
+          <svg class="w-12 h-12 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <p class="text-gray-400">No activity logged yet.</p>
+        </div>
+
+        <div v-else class="relative">
+          <!-- vertical line -->
+          <div class="absolute left-4 top-0 bottom-0 w-px bg-brand-border"></div>
+
+          <div class="space-y-4 pl-12">
+            <div
+              v-for="entry in userLogs" :key="entry.id"
+              class="relative"
+            >
+              <!-- dot -->
+              <div class="absolute -left-8 top-1 w-3 h-3 rounded-full border-2 border-brand-dark flex-shrink-0" :class="entry.dotColor"></div>
+
+              <div class="bg-brand-card border border-brand-border rounded-xl p-4">
+                <div class="flex items-start justify-between gap-4 flex-wrap">
+                  <div class="flex items-center gap-2.5">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-md flex-shrink-0" :class="entry.badgeBg">
+                      <svg class="w-3.5 h-3.5" :class="entry.badgeColor" fill="currentColor" viewBox="0 0 20 20">
+                        <path :d="entry.icon"/>
+                      </svg>
+                    </span>
+                    <span class="text-white text-sm font-semibold">{{ entry.action }}</span>
+                    <span class="text-xs font-medium px-2 py-0.5 rounded-full" :class="entry.tagClass">{{ entry.tag }}</span>
+                  </div>
+                  <span class="text-gray-500 text-xs flex-shrink-0">{{ entry.timestamp }}</span>
+                </div>
+                <p class="text-gray-400 text-sm mt-2 ml-8">{{ entry.detail }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </main>
 
     <LoginModal v-if="showLogin" @close="showLogin = false" @switch-to-signup="showLogin = false; showSignup = true" />
@@ -126,6 +167,7 @@ const loadingAppts = ref(true)
 const tabs = [
   { id: 'appointments', label: 'My Appointments' },
   { id: 'notifications', label: 'Notifications' },
+  { id: 'log', label: 'User Log' },
 ]
 
 const initials = computed(() => {
@@ -201,6 +243,84 @@ const notifications = computed(() => {
     })
   })
   return notes
+})
+
+const userLogs = computed(() => {
+  const logs = []
+  if (!auth.user) return logs
+
+  logs.push({
+    id: 'reg',
+    action: 'Account Registered',
+    tag: 'Auth',
+    tagClass: 'text-brand-cyan bg-brand-cyan/10 border border-brand-cyan/20',
+    detail: `Account created for ${auth.user.email}.`,
+    timestamp: formatDate(auth.user.created_at),
+    dotColor: 'bg-brand-cyan',
+    badgeBg: 'bg-brand-cyan/10',
+    badgeColor: 'text-brand-cyan',
+    icon: 'M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z',
+  })
+
+  if (auth.user.is_verified) {
+    logs.push({
+      id: 'verify',
+      action: 'Email Verified',
+      tag: 'Auth',
+      tagClass: 'text-emerald-400 bg-emerald-400/10 border border-emerald-400/20',
+      detail: `${auth.user.email} was successfully verified.`,
+      timestamp: formatDate(auth.user.created_at),
+      dotColor: 'bg-emerald-400',
+      badgeBg: 'bg-emerald-400/10',
+      badgeColor: 'text-emerald-400',
+      icon: 'M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z',
+    })
+  }
+
+  appointments.value.forEach(appt => {
+    logs.push({
+      id: `appt-book-${appt.id}`,
+      action: 'Appointment Booked',
+      tag: 'Appointment',
+      tagClass: 'text-violet-400 bg-violet-400/10 border border-violet-400/20',
+      detail: `${serviceLabel(appt.service_type)} scheduled for ${appt.preferred_date} at ${appt.preferred_time}.`,
+      timestamp: formatDate(appt.created_at),
+      dotColor: 'bg-violet-400',
+      badgeBg: 'bg-violet-400/10',
+      badgeColor: 'text-violet-400',
+      icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+    })
+
+    if (appt.status === 'confirmed') {
+      logs.push({
+        id: `appt-conf-${appt.id}`,
+        action: 'Appointment Confirmed',
+        tag: 'Appointment',
+        tagClass: 'text-emerald-400 bg-emerald-400/10 border border-emerald-400/20',
+        detail: `Your ${serviceLabel(appt.service_type)} appointment on ${appt.preferred_date} was confirmed.`,
+        timestamp: formatDate(appt.created_at),
+        dotColor: 'bg-emerald-400',
+        badgeBg: 'bg-emerald-400/10',
+        badgeColor: 'text-emerald-400',
+        icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+      })
+    } else if (appt.status === 'cancelled') {
+      logs.push({
+        id: `appt-canc-${appt.id}`,
+        action: 'Appointment Cancelled',
+        tag: 'Appointment',
+        tagClass: 'text-red-400 bg-red-400/10 border border-red-400/20',
+        detail: `Your ${serviceLabel(appt.service_type)} appointment on ${appt.preferred_date} was cancelled.`,
+        timestamp: formatDate(appt.created_at),
+        dotColor: 'bg-red-400',
+        badgeBg: 'bg-red-400/10',
+        badgeColor: 'text-red-400',
+        icon: 'M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z',
+      })
+    }
+  })
+
+  return logs.reverse()
 })
 
 onMounted(async () => {
