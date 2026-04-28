@@ -6,6 +6,9 @@ from app.db.base import get_db
 from app.schemas.appointment import AppointmentCreate, AppointmentOut, AppointmentUpdate
 from app.services import appointment_service
 from app.routers.admin_auth import require_admin
+from app.routers.auth import require_user
+from app.models.user import User
+from app.models.appointment import Appointment
 
 router = APIRouter(prefix="/api/appointments", tags=["appointments"])
 
@@ -13,6 +16,11 @@ router = APIRouter(prefix="/api/appointments", tags=["appointments"])
 @router.post("/", response_model=AppointmentOut, status_code=201)
 async def create_appointment(body: AppointmentCreate, db: Session = Depends(get_db)):
     return await appointment_service.create_appointment(db, body)
+
+
+@router.get("/my", response_model=list[AppointmentOut])
+def my_appointments(current_user: User = Depends(require_user), db: Session = Depends(get_db)):
+    return db.query(Appointment).filter(Appointment.email == current_user.email).order_by(Appointment.created_at.desc()).all()
 
 
 @router.get("/", response_model=list[AppointmentOut])

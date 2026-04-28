@@ -25,18 +25,35 @@
 
       <!-- Auth buttons -->
       <div class="hidden md:flex items-center gap-3">
-        <button
-          @click="$emit('open-login')"
-          class="text-sm font-medium text-gray-300 hover:text-brand-cyan transition-colors px-4 py-2"
-        >
-          Login
-        </button>
-        <button
-          @click="$emit('open-signup')"
-          class="text-sm font-semibold bg-brand-cyan text-brand-dark px-5 py-2 rounded-lg hover:opacity-90 transition-opacity"
-        >
-          Sign Up
-        </button>
+        <template v-if="auth.isLoggedIn">
+          <span class="text-sm text-gray-400">Hi, {{ auth.user?.full_name?.split(' ')[0] || 'User' }}</span>
+          <router-link
+            to="/dashboard"
+            class="text-sm font-medium text-gray-300 hover:text-brand-cyan transition-colors px-4 py-2"
+          >
+            Dashboard
+          </router-link>
+          <button
+            @click="handleLogout"
+            class="text-sm font-semibold border border-brand-border text-gray-300 hover:border-brand-cyan hover:text-brand-cyan px-5 py-2 rounded-lg transition-colors"
+          >
+            Logout
+          </button>
+        </template>
+        <template v-else>
+          <button
+            @click="$emit('open-login')"
+            class="text-sm font-medium text-gray-300 hover:text-brand-cyan transition-colors px-4 py-2"
+          >
+            Login
+          </button>
+          <button
+            @click="$emit('open-signup')"
+            class="text-sm font-semibold bg-brand-cyan text-brand-dark px-5 py-2 rounded-lg hover:opacity-90 transition-opacity"
+          >
+            Sign Up
+          </button>
+        </template>
       </div>
 
       <!-- Mobile menu toggle -->
@@ -65,8 +82,14 @@
           </a>
         </nav>
         <div class="flex gap-3 mt-4 pt-4 border-t border-brand-border">
-          <button @click="$emit('open-login'); mobileOpen = false" class="flex-1 py-2 text-sm text-gray-300 border border-brand-border rounded-lg hover:border-brand-cyan transition-colors">Login</button>
-          <button @click="$emit('open-signup'); mobileOpen = false" class="flex-1 py-2 text-sm font-semibold bg-brand-cyan text-brand-dark rounded-lg hover:opacity-90 transition-opacity">Sign Up</button>
+          <template v-if="auth.isLoggedIn">
+            <router-link to="/dashboard" @click="mobileOpen = false" class="flex-1 py-2 text-sm text-center text-gray-300 border border-brand-border rounded-lg hover:border-brand-cyan transition-colors">Dashboard</router-link>
+            <button @click="handleLogout; mobileOpen = false" class="flex-1 py-2 text-sm font-semibold bg-brand-cyan text-brand-dark rounded-lg hover:opacity-90 transition-opacity">Logout</button>
+          </template>
+          <template v-else>
+            <button @click="$emit('open-login'); mobileOpen = false" class="flex-1 py-2 text-sm text-gray-300 border border-brand-border rounded-lg hover:border-brand-cyan transition-colors">Login</button>
+            <button @click="$emit('open-signup'); mobileOpen = false" class="flex-1 py-2 text-sm font-semibold bg-brand-cyan text-brand-dark rounded-lg hover:opacity-90 transition-opacity">Sign Up</button>
+          </template>
         </div>
       </div>
     </Transition>
@@ -75,11 +98,20 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 defineEmits(['open-login', 'open-signup'])
 
+const auth = useAuthStore()
+const router = useRouter()
 const scrolled = ref(false)
 const mobileOpen = ref(false)
+
+function handleLogout() {
+  auth.logout()
+  router.push('/')
+}
 
 const navItems = [
   { id: 'home', label: 'Home' },

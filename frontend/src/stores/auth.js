@@ -17,7 +17,20 @@ export const useAuthStore = defineStore('auth', () => {
     const { data } = await api.post('/auth/login', { email, password })
     token.value = data.access_token
     localStorage.setItem('token', data.access_token)
+    await fetchMe()
     return data
+  }
+
+  async function fetchMe() {
+    if (!token.value) return
+    try {
+      const { data } = await api.get('/auth/me', {
+        headers: { Authorization: `Bearer ${token.value}` }
+      })
+      user.value = data
+    } catch {
+      logout()
+    }
   }
 
   function logout() {
@@ -26,5 +39,7 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('token')
   }
 
-  return { token, user, isLoggedIn, register, login, logout }
+  if (token.value) fetchMe()
+
+  return { token, user, isLoggedIn, register, login, fetchMe, logout }
 })
